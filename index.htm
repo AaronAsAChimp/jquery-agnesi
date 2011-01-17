@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.js"></script>
+<script src="jquery.easing.1.3.js"></script>
+<script src="jquery.easing.agnesi.js"></script>
+<script>
+
+	$(function () {
+		var X = 0;
+		var Y = 1;
+		
+		function distance(x, y) {
+			return Math.sqrt( x * x + y * y );
+		}
+		
+		var browser_vector = [
+			window.innerWidth || document.documentElement.clientWidth,
+			window.innerHeight || documentElement.clientHeight
+		];
+
+		var bar_width = browser_vector[X] / 4;
+		
+		$("#container").height(browser_vector[Y]);
+		
+		$("#bottom-part").height((browser_vector[Y] - 1) / 2);
+		
+		for(method in $.easing) {
+		
+			if(method != "def") {
+			
+				$("<li>").appendTo("#race-track").text(method).data("method", method);
+			
+			}
+			
+		}
+		
+		$("#button").click(function () {
+
+			$("#race-track").children().each(function () {
+				$(this).animate({
+					width: "75%"
+				}, 1000, $(this).data("method"), function () {
+					$(this).animate({
+						width: "25%"
+					}, 1000, $(this).data("method"));
+				});
+			});
+			
+		});
+		
+		$("#race-track li").hover(function () {
+			$(this).animate({
+				width: "75%"
+			}, 1000, $(this).data("method"));
+		},function () {
+			$(this).animate({
+				width: "25%"
+			}, 1000, $(this).data("method"));
+		});
+
+	});
+
+	
+</script>
+<style>
+	@font-face {
+		/* Normal */
+		font-family: "Puritan";
+		src: url("http://openfontlibrary.org/content/benweiner/259/Puritan2.otf") format("opentype");
+		font-weight:  400;
+		font-style:   normal;
+		font-variant: normal;
+		font-stretch: normal;
+	}
+	
+	@font-face {
+		/* Bold */
+		font-family: "Puritan";
+		src: url("http://openfontlibrary.org/content/benweiner/259/Puritan2Bold.otf") format("opentype");
+		font-weight:  700;
+		font-style:   normal;
+		font-variant: normal;
+		font-stretch: normal;
+	}
+	
+	body {
+		margin: 0;
+		background: #292929;
+		font-family: Puritan, Helvetica, Arial;
+		
+	}
+	
+	#top-part, #bottom-part {
+		position: relative;
+	}
+	
+	#button, #race-track li {
+		margin: 7px 0;
+		height: 45px;
+		width: 25%;
+		text-align: right;
+		font-size: 38px;
+		font-weight: bold;
+		padding: 15px 20px 0 0;
+	}
+	
+	#top-part {
+		background: #99ff33;
+		position: fixed;
+		z-index: 1;
+		width: 100%;
+		height: 150px;
+	}
+	
+	#button {
+		position: absolute;
+		bottom: 0;
+		background: #cc0033;
+		margin-bottom: 0;
+		color: #fff;
+		cursor: pointer;
+	}
+	
+	#bottom-part {
+		padding-top: 150px;
+		width: 100%;
+	}
+	
+	#race-track {
+		margin: 0;
+		padding: 0;
+		background: #171717;
+		border: 1px solid #171717;
+		list-style-type: none;
+	}
+	
+	#race-track li {
+		display: block;
+		background: #9cff71;
+		color: #171717;
+	}
+
+</style>
+</head>
+<body>
+
+<div id="base">
+	<div id="container">
+		<div id="top-part">
+			<div id="button">
+				Go &raquo;
+			</div>
+		</div>
+		<div id="bottom-part">
+			<ul id="race-track">
+			</ul>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>
