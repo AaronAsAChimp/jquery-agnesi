@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.js"></script>
+<script src="jquery.easing.agnesi.js"></script>
+<!--<script src="jquery.easing.1.3.js"></script>-->
+<script>
+	var Aggregate = function (opts) {
+		opts = opts || {};
+		this.record = [];
+		this.minimum = 0;
+		this.maximum = 0;
+		this.bounds = opts.bounds || [0,1];
+		this.draw = this.graph[opts.graph] || this.graph.line;
+	};
+	Aggregate.prototype = {
+		data: function (num) {
+			this.maximum = (num > this.maximum)? num: this.maximum;
+			this.minimum = (num < this.minimum)? num: this.minimum;
+			this.record.push(num);
+		},
+		
+		scale_to_extrema: function(num, postmul) {
+			var offset =  Math.abs( (this.minimum < 0) ? this.minimum : 0 );
+			postmul = postmul || 1;
+
+			return ((( num + offset ) / (this.maximum + offset)) * postmul);
+		},
+		
+		derivative: function () {
+			var dydx = new Aggregate();
+			
+			for(var x = 0; x < this.record.length; x++) {
+
+				if(this.record[x - 1]) {
+					dydx.data(this.record[x] - this.record[x - 1]);
+				}
+
+			}
+			
+			//console.log(dydx.record);
+			//console.log(this.record);
+			
+			return dydx;
+		},
+		
+		graph: {
+		
+			bar: function (ctx, width, height) {
+				ctx.save();
+				
+				var bar_width = width / this.record.length;
+				
+				for(var x = 0; x < this.record.length; x++) {
+					var args = [
+						x * bar_width,
+						height - this.scale_to_extrema(this.record[x], height),
+						bar_width,
+						this.scale_to_extrema(this.record[x], height)
+					];
+					ctx.fillRect.apply(ctx, args);
+					ctx.strokeRect.apply(ctx, args);
+				}	
+				
+				ctx.restore();
+			},
+		
+			line: function (ctx, width, height) {
+				ctx.save();
+					var rate = this.record.length / width;
+			
+					ctx.save();
+						ctx.fillRect( 0, height - this.scale_to_extrema(this.bounds[0], height), width, height - this.scale_to_extrema(this.minimum, height) );
+						ctx.fillRect( 0, 0, width, height - this.scale_to_extrema(this.bounds[1], height) );
+					ctx.restore();
+			
+					ctx.beginPath();
+					for(var x = 0; x < this.record.length; x++) {
+				
+						ctx.lineTo( x / rate, height - this.scale_to_extrema(this.record[x], height) );
+
+					}	
+					ctx. stroke();
+
+				ctx.restore();
+			}
+		}
+	};
+	
+	var Benchmark = function () {
+		this.times = new Aggregate({
+			bounds: [0, 20],
+			graph: "bar"
+		});
+	};
+	
+	Benchmark.prototype = {
+		run: function (funk) {
+			var start = new Date();
+			
+			funk();
+			
+			this.times.data(Date.now() - start);
+		}
+	};
+
+	$(function () {
+		
+		const DURATION = 2500;
+		
+		const G_WIDTH = 500;
+		const G_HEIGHT = 500;
+		
+		var benchmark = new Benchmark();
+		var $time_plot = $("<canvas>");
+		$(document.body).prepend($time_plot);
+		$time_plot.attr("height", G_HEIGHT).attr("width", G_WIDTH);
+		var tpctx = $time_plot.get(0).getContext("2d");
+		
+		for(method in $.easing) {
+			
+			const RESOLUTION = 100;
+			
+			if($.isFunction($.easing[method])) {
+				var agg = new Aggregate();
+				
+				var $graph = $("<canvas>");
+				var $heading = $("<h2>").text(method);
+				var $demo = $("<div>").addClass("lacker").append($("<div>").addClass("highlight").append($("<div>").addClass("sub-lacker").text(method)));
+				var $cont = $("<div>").append($heading).append($demo).append($graph).attr("id",method);
+				$("#race-track").append($cont);
+			
+				//ctx.scale(1, -1);
+				
+				benchmark.run(function () {
+					for(var x = 0; x <= 1; x+= 1 / RESOLUTION) {
+						agg.data($.easing[method](x, x * RESOLUTION, 0, 1, RESOLUTION ));
+					}
+				});
+				
+				$("<div>").text(benchmark.times.record[benchmark.times.record.length - 1] + "ms").insertAfter($heading);
+				
+				$graph.attr("width",G_WIDTH).attr("height", G_HEIGHT);
+	
+				var ctx = $graph.get(0).getContext("2d");
+				ctx.lineWidth = 2;
+				
+				//console.group(method);
+				//ctx.translate(0, G_HEIGHT - new_height);
+				var dx = agg.derivative();
+				ctx.save();
+					ctx.fillStyle = 'transparent';
+					ctx.strokeStyle = 'rgba(128,128,128,.45)';
+					dx.derivative().draw(ctx, G_WIDTH, G_HEIGHT);
+				ctx.restore();
+				
+				ctx.save();
+					ctx.fillStyle = 'transparent';
+					ctx.strokeStyle = 'rgba(50,50,50,.45)';
+					dx.draw(ctx, G_WIDTH, G_HEIGHT);
+				ctx.restore();
+				
+				
+				
+				ctx.save();
+					ctx.fillStyle = 'rgba(200,200,200,.25)';
+					ctx.strokeStyle = 'black';
+					agg.draw(ctx, G_WIDTH, G_HEIGHT);
+				ctx.restore();
+				
+				//console.groupEnd();
+				
+				
+				//ctx.translate(0, G_HEIGHT * agg.minimum);
+			
+				(function (method) {
+					$demo.hover(function() { // anim out
+			
+						var $this = $(this);
+						var finish_line = $this.parent().width() - 40;
+			
+						$this.animate({
+							"left": finish_line
+						}, DURATION, method);
+			
+					},
+					// anim in
+					function () {
+		
+						var $this = $(this);
+			
+						$this.animate({
+							"left": 0
+						}, DURATION, method);
+			
+					});
+				})(method);
+				
+				delete agg;
+			}
+			
+		}
+		
+		tpctx.save();
+			tpctx.lineWidth = 2;
+			tpctx.fillStyle = 'rgba(128,128,128,.45)';
+			tpctx.strokeStyle = 'transparent';
+			benchmark.times.draw(tpctx, G_HEIGHT, G_WIDTH);
+		tpctx.restore();
+
+	});
+
+	
+</script>
+<style>
+	canvas {
+	}
+	
+	#race-track {
+		width: 500px;
+		margin: 0 auto;
+		font-family: sans-serif;
+	}
+	
+	.lacker {
+		/*width: 40px;*/
+		height: 40px;
+		margin: 20px 0;
+		position: relative;
+		border-radius: 20px;
+		-moz-border-radius: 20px;
+	}
+	
+	.sub-lacker {
+		top: 1px;
+		right: 1px;
+		bottom: 1px;
+		left: 1px;
+		position: absolute;
+		border-radius: 10px;
+		-moz-border-radius: 10px;
+		color: white;
+		text-align: center;
+		font-size: 12px;
+		padding: 2px 0;
+		text-shadow: #111 1px 1px 2px;
+	}
+	
+	.highlight {
+		top: 9px;
+		right: 9px;
+		bottom: 9px;
+		left: 9px;
+		position: absolute;
+		border-radius: 11px;
+		-moz-border-radius: 11px;
+	}
+	
+	.lacker {
+		background: #710000;
+		background: -webkit-gradient(linear, left top, left bottom,color-stop(0, #cc0000), color-stop(.30, #810000), color-stop(1, #480000));
+		-webkit-box-shadow: 0 3px 10px rgba(0,0,0, .55);
+	}
+	
+	.lacker .highlight {
+		background: transparent;
+		background: -webkit-gradient(linear, right bottom, right top, color-stop(0, rgba(255,133,99, .50)), color-stop(.40, transparent), color-stop(.90, rgba(0,0,0, .50)));
+	}
+	
+	.lacker .sub-lacker {
+		background: #480000;
+		background: -webkit-gradient(linear, right bottom, right top, color-stop(0, #710000), color-stop(1, #380000));
+	}
+</style>
+</head>
+<body>
+
+<div id="race-track">
+	<!--<h2>Agnesi - Smooth Animation</h2>
+	<div id="clacker" class="lacker" data-effect="agnesi">
+		<div class="sub-lacker"></div>
+	</div>
+
+	<h2>Swing - Not-Smooth Animation</h2>
+	<div id="linier" class="lacker" data-effect="swing">
+		<div class="sub-lacker"></div>
+	</div>
+
+	<h2>Sine - Sorta-Smooth Animation</h2>
+	<div id="sin" class="lacker" data-effect="easeOutSine">
+		<div class="sub-lacker"></div>
+	</div>-->
+</div>
+
+</body>
+</html>
