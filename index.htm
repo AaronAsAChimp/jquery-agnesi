@@ -25,9 +25,11 @@
 		
 		//$("#bottom-part").height((browser_vector[Y] - 1) / 2);
 		
+		$("<li>").appendTo("#race-track").text("agnesi").data("method", "agnesi");
+		
 		for(method in $.easing) {
 		
-			if(method != "def") {
+			if(method != "def" && method != "agnesi") {
 			
 				$("<li>").appendTo("#race-track").text(method).data("method", method);
 			
