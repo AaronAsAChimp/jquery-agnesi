@@ -103,6 +103,16 @@
 				width: "25%"
 			}, 1000, $(this).data("method"));
 		});
+		
+		$("#footer").hover(function () {
+			$(this).stop().animate({
+				opacity: .8
+			}, 300, "agnesi");
+		}, function () {
+			$(this).stop().animate({
+				opacity: .2
+			}, 300, "agnesi");
+		});
 
 	});
 
@@ -131,9 +141,9 @@
 	
 	html {
 		background: #171717;
-		background: -webkit-gradient(linear, left 30%, left 80%, from(#171717), to(#0c0c0c));
-		background: -moz-gradient(linear, left 30%, left 80%, from(#171717), to(#0c0c0c));
-		background: gradient(linear, left 30%, left 80%, from(#171717), to(#0c0c0c)); 
+		background: -webkit-gradient(linear, left 30%, left 80%, from(#292929), to(#0c0c0c));
+		background: -moz-gradient(linear, left 30%, left 80%, from(#292929), to(#0c0c0c));
+		background: gradient(linear, left 30%, left 80%, from(#292929), to(#0c0c0c)); 
 		background-attachment: fixed;
 	}
 	
@@ -272,6 +282,35 @@
 		bottom: 0;
 		left: 0;
 	}
+	
+	#footer {
+		width: 50%;
+		margin: 52px auto;
+		color: #fff;
+		opacity: .2;
+	}
+	
+	#footer > div {
+		float: left;
+	}
+	
+	#license-text,
+	#footer img {
+		margin: 0 0 0 10px;
+	}
+	
+	#license-text {
+		width: 64%
+	}
+	
+	#footer img:first-child {
+		margin: 0;
+	}
+	
+	#footer a {
+		color: #fff;
+		font-weight: bold;
+	}
 
 </style>
 </head>
@@ -298,6 +337,15 @@
 			</ul>
 		</div>
 		<div id="other-part">
+			<div id="footer">
+				<div id="license-images">
+					<img src="mit-license.png" /><img src="gpl-license.png" />
+				</div>
+				<div id="license-text">
+					This page and the Agnesi easing plugin are dual licensed under the <a href="http://www.opensource.org/licenses/mit-license.php" rel="license">MIT&nbsp;license</a> and the <a href="http://www.opensource.org/licenses/gpl-3.0.html" rel="license">GPL&nbsp;version&nbsp;3</a>.<br />
+					Copyright &copy; 2011 Aaron&nbsp;Spaulding
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
