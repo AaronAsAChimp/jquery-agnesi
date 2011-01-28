@@ -1,4 +1,4 @@
-$(function () {
+$(function ($) {
 	
 	$.easing.agnesi = function (percent, time, carp0, carp1, duration) {
 		var r = carp1 - carp0 / 2;
@@ -18,5 +18,5 @@ $(function () {
 	function cart_agnesi(x, a) {
 		return (8 * a * a * a) / ( x * x + 4 * a * a );
 	}
-});
+})(jQuery);
 
