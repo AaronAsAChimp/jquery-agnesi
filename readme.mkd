@@ -1,0 +1,26 @@
+#The Witch of Agnesi easing plugin for jQuery
+
+This plugin adds an easing method to jQuery based on the Witch of Agnesi. Similar to exponential easing, it has has a period of strong acceleration in the middle, but starts and finishes more smoothly. This repository also includes a test page so you compare it against other easing functions.
+
+##Who is the Witch of Agnesi?
+
+Maria Agnesi, for whom the curve was named, was mathematician, philanthropist, and nun. So why is one of her greatest mathematical discoveries refer to her as a witch? Good question. The name "Witch of Agnesi" comes from mistranslation of "The curve of Agnesi".
+
+##Using the plugin
+
+You must first download and include the plugin. It requires that you use jQuery, include them both like this:
+
+	<script src="jquery-1.4.4.js"></script>
+	<script src="jquery.easing.agnesi.js"></script>
+	
+You can set the default easing function like this:
+
+	$.easing.def = "agnesi";
+	
+or just use it like normal:
+	
+	$("#awesome-thing-that-should-animate").hide(1000, "agnesi");
+	
+	$("#awesome-thing-that-should-animate").animate({
+		opacity: 1
+	},1000, "agnesi");
