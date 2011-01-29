@@ -1,4 +1,4 @@
-$(function ($) {
+(function ($) {
 	
 	$.easing.agnesi = function (percent, time, carp0, carp1, duration) {
 		var r = carp1 - carp0 / 2;
